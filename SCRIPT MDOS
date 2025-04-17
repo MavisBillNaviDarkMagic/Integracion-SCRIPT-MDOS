@@ -1,0 +1,36 @@
+import os
+from github import Github
+import json
+from pathlib import Path
+
+class MDOSGitHubUploader:
+    def __init__(self):
+        self.github_token = os.getenv("GITHUB_TOKEN")
+        self.repo_name = "MDOS"
+        self.github = Github(self.github_token)
+        
+    def upload_ports(self):
+        repo = self.github.get_user().get_repo(self.repo_name)
+        
+        # Upload Windows port
+        self.upload_file(repo, "ports/windows/mdos_windows.py")
+        
+        # Upload Android port
+        self.upload_file(repo, "ports/android/mdos_android.py")
+        
+        # Upload iOS port
+        self.upload_file(repo, "ports/ios/MDOSApp.swift")
+        
+    def upload_file(self, repo, file_path):
+        with open(file_path, 'r') as file:
+            content = file.read()
+            repo.create_file(
+                file_path,
+                f"Add {file_path}",
+                content,
+                branch="main"
+            )
+
+if __name__ == "__main__":
+    uploader = MDOSGitHubUploader()
+    uploader.upload_ports()
